@@ -1,0 +1,799 @@
+:root {
+    --duel-bg: #060914;
+    --duel-bg-2: #0b1024;
+    --duel-card: rgba(15, 23, 42, 0.92);
+    --duel-card-2: rgba(20, 31, 60, 0.95);
+    --duel-border: rgba(120, 170, 255, 0.35);
+    --duel-gold: #f6c453;
+    --duel-blue: #38bdf8;
+    --duel-purple: #8b5cf6;
+    --duel-red: #ef4444;
+    --duel-text: #e5e7eb;
+    --duel-muted: #9ca3af;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--duel-text);
+    background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.22), transparent 32%),
+        radial-gradient(circle at top right, rgba(139, 92, 246, 0.26), transparent 35%),
+        linear-gradient(135deg, var(--duel-bg), var(--duel-bg-2) 55%, #020617);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+a {
+    color: var(--duel-blue);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--duel-gold);
+    text-decoration: none;
+}
+
+/* ================================
+   NAVBAR
+================================ */
+
+.duel-navbar {
+    background: rgba(2, 6, 23, 0.92);
+    border-bottom: 1px solid var(--duel-border);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+}
+
+.duel-brand {
+    color: var(--duel-gold) !important;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.duel-navbar .nav-link {
+    color: var(--duel-text) !important;
+    font-weight: 600;
+    margin-left: 8px;
+    border-radius: 999px;
+    padding: 8px 14px !important;
+    transition: 0.25s;
+}
+
+.duel-navbar .nav-link:hover {
+    color: #020617 !important;
+    background: linear-gradient(135deg, var(--duel-gold), #ffe08a);
+    box-shadow: 0 0 18px rgba(246, 196, 83, 0.45);
+}
+
+/* ================================
+   HERO
+================================ */
+
+.duel-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 76px 0 54px;
+    border-bottom: 1px solid rgba(120, 170, 255, 0.18);
+}
+
+.duel-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(2, 6, 23, 0.92), rgba(15, 23, 42, 0.72)),
+        repeating-linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.04) 0,
+            rgba(255, 255, 255, 0.04) 1px,
+            transparent 1px,
+            transparent 16px
+        );
+    z-index: 0;
+}
+
+.duel-hero .container {
+    position: relative;
+    z-index: 1;
+}
+
+.duel-kicker {
+    display: inline-block;
+    padding: 6px 14px;
+    margin-bottom: 16px;
+    color: var(--duel-gold);
+    border: 1px solid rgba(246, 196, 83, 0.5);
+    border-radius: 999px;
+    background: rgba(246, 196, 83, 0.08);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.duel-title {
+    color: #ffffff;
+    font-size: clamp(32px, 5vw, 58px);
+    font-weight: 900;
+    letter-spacing: 1px;
+    line-height: 1.05;
+    text-transform: uppercase;
+    text-shadow: 0 0 22px rgba(56, 189, 248, 0.45);
+}
+
+.duel-subtitle {
+    max-width: 720px;
+    margin-top: 16px;
+    color: var(--duel-muted);
+    font-size: 18px;
+}
+
+/* ================================
+   MAIN LAYOUT
+================================ */
+
+.duel-main {
+    padding-top: 34px;
+    padding-bottom: 48px;
+}
+
+.duel-section-title {
+    color: #ffffff;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.duel-section-title::after {
+    content: "";
+    display: block;
+    width: 90px;
+    height: 3px;
+    margin-top: 10px;
+    background: linear-gradient(90deg, var(--duel-gold), var(--duel-blue));
+    border-radius: 999px;
+}
+
+.text-muted {
+    color: var(--duel-muted) !important;
+}
+
+/* ================================
+   PANEL / CARD / TABLE
+================================ */
+
+.duel-panel,
+.duel-card,
+.list-group-item,
+.card,
+.table {
+    color: var(--duel-text);
+    background: var(--duel-card);
+    border: 1px solid var(--duel-border);
+    border-radius: 18px;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+}
+
+.duel-panel {
+    padding: 24px;
+}
+
+.duel-card {
+    height: 100%;
+    overflow: hidden;
+    transition: 0.25s;
+}
+
+.duel-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(246, 196, 83, 0.72);
+    box-shadow:
+        0 20px 55px rgba(0, 0, 0, 0.5),
+        0 0 28px rgba(246, 196, 83, 0.16);
+}
+
+.duel-card-body {
+    padding: 20px;
+}
+
+.duel-price {
+    color: var(--duel-gold);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.duel-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    color: #dbeafe;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.45);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* ================================
+   BUTTONS
+================================ */
+
+.btn-duel-primary,
+.btn-duel-warning,
+.btn-duel-danger,
+.btn-duel-secondary {
+    border: none;
+    border-radius: 999px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    padding: 10px 18px;
+    transition: 0.25s;
+}
+
+.btn-duel-primary {
+    color: #020617;
+    background: linear-gradient(135deg, var(--duel-gold), #ffe08a);
+    box-shadow: 0 0 18px rgba(246, 196, 83, 0.25);
+}
+
+.btn-duel-primary:hover {
+    color: #020617;
+    transform: translateY(-2px);
+    box-shadow: 0 0 26px rgba(246, 196, 83, 0.45);
+}
+
+.btn-duel-warning {
+    color: #020617;
+    background: linear-gradient(135deg, #f59e0b, #fde68a);
+}
+
+.btn-duel-warning:hover {
+    color: #020617;
+    transform: translateY(-2px);
+}
+
+.btn-duel-danger {
+    color: #ffffff;
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+.btn-duel-danger:hover {
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+.btn-duel-secondary {
+    color: #ffffff;
+    background: linear-gradient(135deg, #334155, #475569);
+}
+
+.btn-duel-secondary:hover {
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* ================================
+   FORM
+================================ */
+
+.form-control,
+.custom-select {
+    color: var(--duel-text);
+    background: rgba(2, 6, 23, 0.8);
+    border: 1px solid rgba(120, 170, 255, 0.35);
+    border-radius: 12px;
+}
+
+.form-control:focus,
+.custom-select:focus {
+    color: var(--duel-text);
+    background: rgba(2, 6, 23, 0.95);
+    border-color: var(--duel-gold);
+    box-shadow: 0 0 0 0.2rem rgba(246, 196, 83, 0.18);
+}
+
+label {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+/* ================================
+   TABLE
+================================ */
+
+.table {
+    overflow: hidden;
+}
+
+.table thead th {
+    color: var(--duel-gold);
+    background: rgba(2, 6, 23, 0.95);
+    border-color: var(--duel-border);
+}
+
+.table td,
+.table th {
+    border-color: rgba(120, 170, 255, 0.2);
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    color: var(--duel-text);
+    background: rgba(56, 189, 248, 0.08);
+}
+
+/* ================================
+   ALERT
+================================ */
+
+.alert-danger {
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.55);
+    border-color: rgba(239, 68, 68, 0.55);
+    border-radius: 14px;
+}
+
+/* ================================
+   OLD PRODUCT IMAGE SUPPORT
+================================ */
+
+.duel-product-image {
+    width: 100%;
+    height: 230px;
+    object-fit: cover;
+    background: #020617;
+    border-bottom: 1px solid var(--duel-border);
+}
+
+.duel-product-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 230px;
+    color: var(--duel-muted);
+    background:
+        radial-gradient(circle, rgba(56, 189, 248, 0.25), transparent 40%),
+        #020617;
+    border-bottom: 1px solid var(--duel-border);
+    font-weight: 700;
+}
+
+.duel-detail-image {
+    width: 100%;
+    max-height: 460px;
+    object-fit: cover;
+    border-radius: 18px;
+    border: 1px solid var(--duel-border);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+}
+
+/* ================================
+   YU-GI-OH PRODUCT CARD STYLE
+================================ */
+
+.ygo-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 240px));
+    gap: 28px;
+    justify-content: center;
+}
+
+.ygo-card {
+    width: 240px;
+    aspect-ratio: 59 / 86;
+    position: relative;
+    overflow: hidden;
+    color: #1f1300;
+    background:
+        linear-gradient(135deg, #c98a2e, #f6d06f 28%, #8a4f16 58%, #3b220b);
+    border: 3px solid #2b1605;
+    border-radius: 10px;
+    box-shadow:
+        0 18px 35px rgba(0, 0, 0, 0.65),
+        0 0 18px rgba(246, 196, 83, 0.28);
+    transition: 0.25s ease;
+}
+
+.ygo-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow:
+        0 24px 46px rgba(0, 0, 0, 0.75),
+        0 0 28px rgba(246, 196, 83, 0.55);
+}
+
+.ygo-card-inner {
+    position: absolute;
+    inset: 9px;
+    display: flex;
+    flex-direction: column;
+    background: #d8b46a;
+    border: 2px solid rgba(70, 38, 5, 0.9);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.ygo-card-name {
+    height: 34px;
+    padding: 5px 8px;
+    color: #1a0f02;
+    background: linear-gradient(90deg, #e7c56d, #f8e59a, #bf7d26);
+    border-bottom: 2px solid #5a310b;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+    overflow: hidden;
+}
+
+.ygo-card-name a {
+    color: #1a0f02;
+}
+
+.ygo-card-name a:hover {
+    color: #5f1b00;
+}
+
+.ygo-card-stars {
+    height: 18px;
+    padding: 2px 8px;
+    text-align: right;
+    color: #d41212;
+    background: #c8913d;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.ygo-card-image-wrap {
+    display: block;
+    height: 142px;
+    margin: 7px 9px 0;
+    background: #111827;
+    border: 3px solid #4b2a09;
+    overflow: hidden;
+}
+
+.ygo-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ygo-card-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #d1d5db;
+    background:
+        radial-gradient(circle, rgba(56, 189, 248, 0.35), transparent 45%),
+        #020617;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.ygo-card-type {
+    margin: 7px 9px 0;
+    padding: 4px 6px;
+    color: #1a0f02;
+    background: #e9d39b;
+    border: 1px solid #5a310b;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ygo-card-description {
+    flex: 1;
+    margin: 0 9px;
+    padding: 6px;
+    color: #1f1300;
+    background: #f3e2b3;
+    border-left: 1px solid #5a310b;
+    border-right: 1px solid #5a310b;
+    font-size: 11px;
+    line-height: 1.25;
+    overflow: hidden;
+}
+
+.ygo-card-price {
+    margin: 0 9px;
+    padding: 4px 6px;
+    color: #1a0f02;
+    background: #f3e2b3;
+    border: 1px solid #5a310b;
+    border-top: none;
+    font-size: 12px;
+    font-weight: 900;
+    text-align: right;
+}
+
+.ygo-card-actions {
+    display: flex;
+    gap: 4px;
+    padding: 7px 9px 8px;
+    background: #c8913d;
+}
+
+.ygo-card-actions .btn {
+    flex: 1;
+    padding: 4px 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* ================================
+   PRODUCT DETAIL CARD IMAGE
+================================ */
+
+.ygo-detail-card-image {
+    display: block;
+    width: min(100%, 360px);
+    aspect-ratio: 59 / 86;
+    object-fit: cover;
+    margin: 0 auto;
+    border: 5px solid #2b1605;
+    border-radius: 12px;
+    background: #020617;
+    box-shadow:
+        0 24px 50px rgba(0, 0, 0, 0.75),
+        0 0 28px rgba(246, 196, 83, 0.35);
+}
+
+/* ================================
+   FOOTER
+================================ */
+
+.duel-footer {
+    color: var(--duel-muted);
+    background: rgba(2, 6, 23, 0.95);
+    border-top: 1px solid var(--duel-border);
+}
+
+.duel-footer-title {
+    color: var(--duel-gold);
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.duel-footer a {
+    color: var(--duel-text);
+}
+
+.duel-footer a:hover {
+    color: var(--duel-gold);
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+    .duel-hero {
+        padding: 54px 0 38px;
+    }
+
+    .duel-product-image,
+    .duel-product-placeholder {
+        height: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .ygo-card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(210px, 210px));
+        gap: 20px;
+    }
+
+    .ygo-card {
+        width: 210px;
+    }
+
+    .ygo-card-image-wrap {
+        height: 122px;
+    }
+
+    .ygo-card-description {
+        font-size: 10px;
+    }
+}
+
+/* ================================
+   PRODUCT LIST - YU-GI-OH CARD SIZE
+   Tỉ lệ thẻ: 59 / 86
+================================ */
+
+.ygo-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 230px);
+    gap: 30px;
+    justify-content: center;
+    align-items: start;
+}
+
+.ygo-card {
+    width: 230px;
+    aspect-ratio: 59 / 86;
+    position: relative;
+    overflow: hidden;
+    color: #1f1300;
+    background:
+        linear-gradient(135deg, #c98a2e, #f6d06f 28%, #8a4f16 58%, #3b220b);
+    border: 3px solid #2b1605;
+    border-radius: 10px;
+    box-shadow:
+        0 18px 35px rgba(0, 0, 0, 0.65),
+        0 0 18px rgba(246, 196, 83, 0.28);
+    transition: 0.25s ease;
+}
+
+.ygo-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow:
+        0 24px 46px rgba(0, 0, 0, 0.75),
+        0 0 28px rgba(246, 196, 83, 0.55);
+}
+
+.ygo-card-inner {
+    position: absolute;
+    inset: 8px;
+    display: flex;
+    flex-direction: column;
+    background: #d8b46a;
+    border: 2px solid rgba(70, 38, 5, 0.9);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.ygo-card-name {
+    height: 34px;
+    padding: 5px 8px;
+    color: #1a0f02;
+    background: linear-gradient(90deg, #e7c56d, #f8e59a, #bf7d26);
+    border-bottom: 2px solid #5a310b;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+    overflow: hidden;
+}
+
+.ygo-card-name a {
+    color: #1a0f02;
+}
+
+.ygo-card-name a:hover {
+    color: #5f1b00;
+}
+
+.ygo-card-stars {
+    height: 18px;
+    padding: 2px 8px;
+    text-align: right;
+    color: #d41212;
+    background: #c8913d;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+.ygo-card-image-wrap {
+    display: block;
+    height: 136px;
+    margin: 7px 9px 0;
+    background: #111827;
+    border: 3px solid #4b2a09;
+    overflow: hidden;
+}
+
+.ygo-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ygo-card-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #d1d5db;
+    background:
+        radial-gradient(circle, rgba(56, 189, 248, 0.35), transparent 45%),
+        #020617;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.ygo-card-type {
+    margin: 7px 9px 0;
+    padding: 4px 6px;
+    color: #1a0f02;
+    background: #e9d39b;
+    border: 1px solid #5a310b;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ygo-card-description {
+    flex: 1;
+    margin: 0 9px;
+    padding: 6px;
+    color: #1f1300;
+    background: #f3e2b3;
+    border-left: 1px solid #5a310b;
+    border-right: 1px solid #5a310b;
+    font-size: 10px;
+    line-height: 1.25;
+    overflow: hidden;
+}
+
+.ygo-card-price {
+    margin: 0 9px;
+    padding: 4px 6px;
+    color: #1a0f02;
+    background: #f3e2b3;
+    border: 1px solid #5a310b;
+    border-top: none;
+    font-size: 11px;
+    font-weight: 900;
+    text-align: right;
+}
+
+.ygo-card-actions {
+    display: flex;
+    gap: 4px;
+    padding: 7px 9px 8px;
+    background: #c8913d;
+}
+
+.ygo-card-actions .btn {
+    flex: 1;
+    padding: 4px 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+    .ygo-card-grid {
+        grid-template-columns: repeat(auto-fill, 200px);
+        gap: 22px;
+    }
+
+    .ygo-card {
+        width: 200px;
+    }
+
+    .ygo-card-image-wrap {
+        height: 118px;
+    }
+
+    .ygo-card-name {
+        font-size: 12px;
+    }
+
+    .ygo-card-description {
+        font-size: 9px;
+    }
+
+    .ygo-card-actions .btn {
+        font-size: 9px;
+        padding: 3px 4px;
+    }
+}
