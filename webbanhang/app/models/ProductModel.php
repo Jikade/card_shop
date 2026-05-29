@@ -144,16 +144,44 @@ class ProductModel
 
     public function deleteProduct($id)
     {
-        $query = "DELETE FROM " . $this->table_name . "
-                  WHERE id = :id";
+        try {
+            // Kiểm tra sản phẩm đã có trong đơn hàng chưa
+            $checkQuery = "SELECT COUNT(*) FROM order_details WHERE product_id = :id";
+            $checkStmt = $this->conn->prepare($checkQuery);
+            $checkStmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $checkStmt->execute();
 
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $id);
+            $count = $checkStmt->fetchColumn();
 
-        if ($stmt->execute()) {
-            return true;
+            if ($count > 0) {
+                return [
+                    'success' => false,
+                    'message' => 'Không thể xóa sản phẩm này vì sản phẩm đã có trong hóa đơn/đơn hàng.'
+                ];
+            }
+
+            // Nếu chưa có trong đơn hàng thì cho xóa
+            $query = "DELETE FROM product WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                return [
+                    'success' => true,
+                    'message' => 'Xóa sản phẩm thành công.'
+                ];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Không thể xóa sản phẩm.'
+            ];
+
+        } catch (PDOException $e) {
+            return [
+                'success' => false,
+                'message' => 'Lỗi khi xóa sản phẩm: ' . $e->getMessage()
+            ];
         }
-
-        return false;
     }
 }

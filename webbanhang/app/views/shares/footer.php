@@ -1,82 +1,68 @@
-    </main>
 
-    <footer class="duel-footer mt-5">
+    </div>
+</main>
 
-        <div class="container py-5">
+<footer class="duel-footer py-4 mt-5">
+    <div class="container">
+        <div class="row">
 
-            <div class="row">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <h5 class="duel-footer-title">
+                    Duel Card Shop
+                </h5>
 
-                <div class="col-lg-6 col-md-12 mb-4">
-                    <h5 class="duel-footer-title">
-                        Product Duel
-                    </h5>
+                <p class="mb-0">
+                    Website quản lý và bán thẻ bài dành cho người yêu thích card game.
+                </p>
+            </div>
 
-                    <p>
-                        Hệ thống quản lý sản phẩm, danh mục và hình ảnh
-                        với giao diện tối hiện đại, phù hợp cho project PHP MVC.
-                    </p>
-                </div>
+            <div class="col-md-6 text-md-right">
+                <p class="mb-1">
+                    <a href="/webbanhang/Product">Sản phẩm</a>
+                    |
+                    <a href="/webbanhang/Product/cart">Giỏ hàng</a>
+                    |
+                    <a href="/webbanhang/Product/invoices">Hóa đơn</a>
+                </p>
 
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5 class="duel-footer-title">
-                        Sản phẩm
-                    </h5>
-
-                    <ul class="list-unstyled mb-0">
-                        <li>
-                            <a href="/webbanhang/Product/list">
-                                Danh sách sản phẩm
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="/webbanhang/Product/add">
-                                Thêm sản phẩm
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5 class="duel-footer-title">
-                        Danh mục
-                    </h5>
-
-                    <ul class="list-unstyled mb-0">
-                        <li>
-                            <a href="/webbanhang/Category/list">
-                                Danh sách danh mục
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="/webbanhang/Category/add">
-                                Thêm danh mục
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
+                <p class="mb-0">
+                    © <?php echo date('Y'); ?> Duel Card Shop
+                </p>
             </div>
 
         </div>
+    </div>
+</footer>
 
-        <div class="text-center py-3" style="background: rgba(0, 0, 0, 0.35);">
-            © 2025 Product Duel Admin. All rights reserved.
-        </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const layer = document.getElementById('fallingCardLayer');
 
-    </footer>
+        if (!layer) {
+            return;
+        }
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        const cardCount = window.innerWidth <= 576 ? 12 : 24;
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js">
-    </script>
+        for (let i = 0; i < cardCount; i++) {
+            const card = document.createElement('div');
 
-    <script
-        src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js">
-    </script>
+            card.className = 'falling-card';
 
-</body>
+            const left = Math.random() * 100;
+            const delay = Math.random() * 12;
+            const duration = 9 + Math.random() * 10;
+            const scale = 0.65 + Math.random() * 0.75;
 
-</html>
+            card.style.left = left + 'vw';
+            card.style.animationDelay = '-' + delay + 's';
+            card.style.animationDuration = duration + 's';
+            card.style.transform = 'scale(' + scale + ')';
+
+            layer.appendChild(card);
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
