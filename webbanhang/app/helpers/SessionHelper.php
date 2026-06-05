@@ -35,6 +35,13 @@ class SessionHelper
 
         return $_SESSION['role'] ?? 'guest';
     }
+
+    // Thêm phương thức kiểm tra role cụ thể
+    public static function hasRole($role) 
+    {
+        self::start();
+        return isset($_SESSION['role']) && $_SESSION['role'] === $role;
+    }
 }
 
 ?>

@@ -1,4 +1,10 @@
-<?php include 'app/views/shares/header.php'; ?>
+<?php
+require_once 'app/helpers/SessionHelper.php';
+
+$isAdmin = SessionHelper::isAdmin();
+
+include 'app/views/shares/header.php';
+?>
 
 <style>
     .product-page-header {
@@ -136,10 +142,14 @@
 
     .product-card-actions {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr;
         gap: 8px;
         margin-top: 14px;
         margin-bottom: 10px;
+    }
+
+    .product-card-actions.admin-actions {
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .product-card-cart {
@@ -279,9 +289,11 @@
         </p>
     </div>
 
-    <a href="/webbanhang/Product/add" class="btn btn-duel-primary">
-        + Thêm thẻ mới
-    </a>
+    <?php if ($isAdmin): ?>
+        <a href="/webbanhang/Product/add" class="btn btn-duel-primary">
+            + Thêm thẻ mới
+        </a>
+    <?php endif; ?>
 
 </div>
 
@@ -349,7 +361,7 @@
                     </span>
                 </div>
 
-                <div class="product-card-actions">
+                <div class="product-card-actions <?php echo $isAdmin ? 'admin-actions' : ''; ?>">
 
                     <a
                         href="/webbanhang/Product/show/<?php echo $product->id; ?>"
@@ -358,31 +370,39 @@
                         <span>Xem</span>
                     </a>
 
-                    <a
-                        href="/webbanhang/Product/edit/<?php echo $product->id; ?>"
-                        class="product-action-btn product-action-edit">
-                        <span class="product-action-icon">✎</span>
-                        <span>Sửa</span>
-                    </a>
+                    <?php if ($isAdmin): ?>
 
-                    <a
-                        href="/webbanhang/Product/delete/<?php echo $product->id; ?>"
-                        class="product-action-btn product-action-delete"
-                        onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
-                        <span class="product-action-icon">✕</span>
-                        <span>Xóa</span>
-                    </a>
+                        <a
+                            href="/webbanhang/Product/edit/<?php echo $product->id; ?>"
+                            class="product-action-btn product-action-edit">
+                            <span class="product-action-icon">✎</span>
+                            <span>Sửa</span>
+                        </a>
+
+                        <a
+                            href="/webbanhang/Product/delete/<?php echo $product->id; ?>"
+                            class="product-action-btn product-action-delete"
+                            onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                            <span class="product-action-icon">✕</span>
+                            <span>Xóa</span>
+                        </a>
+
+                    <?php endif; ?>
 
                 </div>
 
-                <div class="product-card-cart">
-                    <a
-                        href="/webbanhang/Product/addToCart/<?php echo $product->id; ?>"
-                        class="product-action-btn product-action-cart">
-                        <span class="product-action-icon">🛒</span>
-                        <span>Thêm vào giỏ hàng</span>
-                    </a>
-                </div>
+                <?php if (!$isAdmin): ?>
+
+                    <div class="product-card-cart">
+                        <a
+                            href="/webbanhang/Product/addToCart/<?php echo $product->id; ?>"
+                            class="product-action-btn product-action-cart">
+                            <span class="product-action-icon">🛒</span>
+                            <span>Thêm vào giỏ hàng</span>
+                        </a>
+                    </div>
+
+                <?php endif; ?>
 
             </div>
 
@@ -397,9 +417,11 @@
                 Hãy thêm sản phẩm đầu tiên vào shop thẻ của bạn.
             </p>
 
-            <a href="/webbanhang/Product/add" class="btn btn-duel-primary">
-                + Thêm thẻ mới
-            </a>
+            <?php if ($isAdmin): ?>
+                <a href="/webbanhang/Product/add" class="btn btn-duel-primary">
+                    + Thêm thẻ mới
+                </a>
+            <?php endif; ?>
         </div>
 
     <?php endif; ?>

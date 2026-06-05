@@ -1,7 +1,11 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'app/helpers/SessionHelper.php';
+
+SessionHelper::start();
+
+$isLoggedIn = SessionHelper::isLoggedIn();
+$isAdmin = SessionHelper::isAdmin();
+$role = SessionHelper::getRole();
 
 $cartCount = 0;
 
@@ -21,15 +25,11 @@ if (!empty($_SESSION['cart'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duel Card Shop</title>
 
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="/webbanhang/public/css/duel-theme.css">
-
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/webbanhang/public/css/duel-theme.css">
 </head>
 
 <body>
-
 
 <div class="falling-card-layer" id="fallingCardLayer"></div>
 
@@ -59,65 +59,85 @@ if (!empty($_SESSION['cart'])) {
                     </a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="/webbanhang/Product/add">
-                        Thêm thẻ
-                    </a>
-                </li>
+                <?php if ($isAdmin): ?>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="/webbanhang/Category/list">
-                        Danh mục
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/webbanhang/Product/add">
+                            Thêm thẻ
+                        </a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link nav-cart-link" href="/webbanhang/Product/cart">
-                        🛒 Giỏ hàng
-                        <span class="cart-count">
-                            <?php echo $cartCount; ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/webbanhang/Category/list">
+                            Danh mục
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-invoice-link" href="/webbanhang/Product/invoices">
+                            🧾 Hóa đơn
+                        </a>
+                    </li>
+
+                <?php endif; ?>
+
+                <?php if ($isLoggedIn && !$isAdmin): ?>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-cart-link" href="/webbanhang/Product/cart">
+                            🛒 Giỏ hàng
+                            <span class="cart-count">
+                                <?php echo $cartCount; ?>
+                            </span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link nav-invoice-link" href="/webbanhang/Product/invoices">
+                            🧾 Hóa đơn
+                        </a>
+                    </li>
+
+                <?php endif; ?>
+
+                <?php if ($isLoggedIn): ?>
+
+                    <li class="nav-item">
+                        <span class="nav-link">
+                            👋 Xin chào,
+                            <strong>
+                                <?php echo htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?>
+                            </strong>
+
+                            <?php if ($isAdmin): ?>
+                                <span class="badge badge-warning ml-1">Admin</span>
+                            <?php else: ?>
+                                <span class="badge badge-info ml-1">User</span>
+                            <?php endif; ?>
                         </span>
-                    </a>
-                </li>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link nav-invoice-link" href="/webbanhang/Product/invoices">
-                        🧾 Hóa đơn
-                    </a>
-                </li>
-                <?php if (isset($_SESSION['username'])): ?>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" href="/webbanhang/account/logout">
+                            🚪 Đăng xuất
+                        </a>
+                    </li>
 
-<li class="nav-item">
-    <span class="nav-link">
-        👋 Xin chào,
-        <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>
-    </span>
-</li>
+                <?php else: ?>
 
-<li class="nav-item">
-    <a class="nav-link text-warning"
-       href="/webbanhang/account/logout">
-        🚪 Đăng xuất
-    </a>
-</li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/webbanhang/account/login">
+                            🔑 Đăng nhập
+                        </a>
+                    </li>
 
-<?php else: ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/webbanhang/account/register">
+                            📝 Đăng ký
+                        </a>
+                    </li>
 
-<li class="nav-item">
-    <a class="nav-link"
-       href="/webbanhang/account/login">
-        🔑 Đăng nhập
-    </a>
-</li>
-
-<li class="nav-item">
-    <a class="nav-link"
-       href="/webbanhang/account/register">
-        📝 Đăng ký
-    </a>
-</li>
-
-<?php endif; ?>
+                <?php endif; ?>
 
             </ul>
         </div>
@@ -142,4 +162,3 @@ if (!empty($_SESSION['cart'])) {
 
 <main class="duel-main">
     <div class="container">
-
