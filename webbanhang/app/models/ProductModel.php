@@ -10,6 +10,34 @@ class ProductModel
         $this->conn = $db;
     }
 
+    public function getInvoices()
+    {
+        $query = "
+            SELECT 
+                orders.id AS order_id,
+                orders.name AS customer_name,
+                orders.phone,
+                orders.address,
+                orders.created_at,
+                order_details.product_id,
+                product.name AS product_name,
+                order_details.quantity,
+                order_details.price,
+                (order_details.quantity * order_details.price) AS total
+            FROM orders
+            INNER JOIN order_details 
+                ON orders.id = order_details.order_id
+            INNER JOIN product 
+                ON order_details.product_id = product.id
+            ORDER BY orders.created_at DESC
+        ";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
     public function getProducts()
     {
         $query = "SELECT 
