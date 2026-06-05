@@ -85,6 +85,39 @@ if (!empty($_SESSION['cart'])) {
                         🧾 Hóa đơn
                     </a>
                 </li>
+                <?php if (isset($_SESSION['username'])): ?>
+
+<li class="nav-item">
+    <span class="nav-link">
+        👋 Xin chào,
+        <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong>
+    </span>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link text-warning"
+       href="/webbanhang/account/logout">
+        🚪 Đăng xuất
+    </a>
+</li>
+
+<?php else: ?>
+
+<li class="nav-item">
+    <a class="nav-link"
+       href="/webbanhang/account/login">
+        🔑 Đăng nhập
+    </a>
+</li>
+
+<li class="nav-item">
+    <a class="nav-link"
+       href="/webbanhang/account/register">
+        📝 Đăng ký
+    </a>
+</li>
+
+<?php endif; ?>
 
             </ul>
         </div>
