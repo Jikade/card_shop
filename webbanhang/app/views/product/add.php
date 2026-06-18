@@ -1,105 +1,131 @@
-<?php include 'app/views/shares/header.php'; ?>
+<?php
+require_once 'app/helpers/SessionHelper.php';
 
-<div class="duel-panel">
+if (!SessionHelper::isAdmin()) {
+    http_response_code(403);
+    die('Bạn không có quyền truy cập chức năng này!');
+}
 
-    <h2 class="duel-section-title mb-4">
-        Thêm sản phẩm mới
-    </h2>
+include 'app/views/shares/header.php';
+?>
 
-    <?php if (!empty($errors)): ?>
+<div class="duel-panel api-form-panel">
+    <h2 class="duel-section-title mb-4">Thêm sản phẩm bằng jQuery AJAX</h2>
 
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                <?php foreach ($errors as $error): ?>
-                    <li>
-                        <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
+    <div id="formAlert"></div>
 
-    <?php endif; ?>
-
-    <form
-        method="POST"
-        action="/webbanhang/Product/save"
-        enctype="multipart/form-data"
-        onsubmit="return validateForm();">
-
+    <form id="productForm" novalidate>
         <div class="form-group">
-            <label for="name">Tên sản phẩm:</label>
-
-            <input
-                type="text"
-                id="name"
-                name="name"
-                class="form-control"
-                required>
+            <label for="name">Tên sản phẩm</label>
+            <input type="text" id="name" class="form-control" required>
         </div>
 
         <div class="form-group">
-            <label for="description">Mô tả:</label>
-
-            <textarea
-                id="description"
-                name="description"
-                class="form-control"
-                rows="4"
-                required></textarea>
+            <label for="description">Mô tả</label>
+            <textarea id="description" class="form-control" rows="4" required></textarea>
         </div>
 
         <div class="form-group">
-            <label for="price">Giá:</label>
-
-            <input
-                type="number"
-                id="price"
-                name="price"
-                class="form-control"
-                step="0.01"
-                required>
+            <label for="price">Giá</label>
+            <input type="number" id="price" class="form-control" min="0" step="0.01" required>
         </div>
 
         <div class="form-group">
-            <label for="category_id">Danh mục:</label>
-
-            <select
-                id="category_id"
-                name="category_id"
-                class="form-control"
-                required>
-
-                <?php foreach ($categories as $category): ?>
-
-                    <option value="<?php echo $category->id; ?>">
-                        <?php echo htmlspecialchars($category->name, ENT_QUOTES, 'UTF-8'); ?>
-                    </option>
-
-                <?php endforeach; ?>
-
+            <label for="category_id">Danh mục</label>
+            <select id="category_id" class="form-control" required>
+                <option value="">Đang tải danh mục...</option>
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="image">Hình ảnh:</label>
-
-            <input
-                type="file"
-                id="image"
-                name="image"
-                class="form-control">
-        </div>
-
-        <button type="submit" class="btn btn-duel-primary">
+        <button type="submit" id="btnSubmit" class="btn btn-duel-primary">
             Thêm sản phẩm
         </button>
 
-        <a href="/webbanhang/Product/list" class="btn btn-duel-secondary">
+        <a href="/webbanhang/Product" class="btn btn-duel-secondary">
             Quay lại
         </a>
-
     </form>
-
 </div>
+
+<script>
+$(function () {
+    const $form = $('#productForm');
+    const $category = $('#category_id');
+    const $submit = $('#btnSubmit');
+    const $alert = $('#formAlert');
+
+    function escapeHtml(value) {
+        return $('<div>').text(value == null ? '' : value).html();
+    }
+
+    function showAlert(message, type) {
+        $alert.html(
+            '<div class="alert alert-' + (type || 'danger') + '">' + message + '</div>'
+        );
+    }
+
+    function loadCategories() {
+        ProductApi.getCategories()
+            .done(function (categories) {
+                let options = '<option value="">-- Chọn danh mục --</option>';
+
+                $.each(categories, function (_, category) {
+                    options +=
+                        '<option value="' + Number(category.id) + '">' +
+                            escapeHtml(category.name) +
+                        '</option>';
+                });
+
+                $category.html(options);
+            })
+            .fail(function (xhr) {
+                $category.html('<option value="">Không tải được danh mục</option>');
+                showAlert(
+                    escapeHtml(ProductApi.getErrorMessage(xhr, 'Không thể tải danh mục.')),
+                    'danger'
+                );
+            });
+    }
+
+    $form.on('submit', function (event) {
+        event.preventDefault();
+        $alert.empty();
+
+        const data = {
+            name: $.trim($('#name').val()),
+            description: $.trim($('#description').val()),
+            price: $('#price').val(),
+            category_id: $category.val()
+        };
+
+        if (!data.name || !data.description || data.price === '' || !data.category_id) {
+            showAlert('Vui lòng nhập đầy đủ thông tin sản phẩm.', 'danger');
+            return;
+        }
+
+        $submit.prop('disabled', true).html('<span class="api-spinner"></span>Đang thêm...');
+
+        ProductApi.create(data)
+            .done(function (response) {
+                showAlert(escapeHtml(response.message), 'success');
+
+                setTimeout(function () {
+                    window.location.href = '/webbanhang/Product';
+                }, 500);
+            })
+            .fail(function (xhr) {
+                showAlert(
+                    ProductApi.getErrorMessage(xhr, 'Thêm sản phẩm thất bại.'),
+                    'danger'
+                );
+            })
+            .always(function () {
+                $submit.prop('disabled', false).text('Thêm sản phẩm');
+            });
+    });
+
+    loadCategories();
+});
+</script>
 
 <?php include 'app/views/shares/footer.php'; ?>

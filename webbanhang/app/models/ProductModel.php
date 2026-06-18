@@ -3,33 +3,50 @@
 class ProductModel
 {
     private $conn;
-    private $table_name = "product";
+    private $table_name = 'product';
 
     public function __construct($db)
     {
         $this->conn = $db;
     }
 
-    public function getInvoices()
+    private function validate($name, $description, $price, $category_id)
+    {
+        $errors = [];
+
+        if (trim((string) $name) === '') {
+            $errors['name'] = 'Tên sản phẩm không được để trống';
+        }
+
+        if (trim((string) $description) === '') {
+            $errors['description'] = 'Mô tả không được để trống';
+        }
+
+        if (!is_numeric($price) || $price < 0) {
+            $errors['price'] = 'Giá sản phẩm không hợp lệ';
+        }
+
+        if (empty($category_id) || !is_numeric($category_id)) {
+            $errors['category_id'] = 'Danh mục không hợp lệ';
+        }
+
+        return $errors;
+    }
+
+    public function getProducts()
     {
         $query = "
-            SELECT 
-                orders.id AS order_id,
-                orders.name AS customer_name,
-                orders.phone,
-                orders.address,
-                orders.created_at,
-                order_details.product_id,
-                product.name AS product_name,
-                order_details.quantity,
-                order_details.price,
-                (order_details.quantity * order_details.price) AS total
-            FROM orders
-            INNER JOIN order_details 
-                ON orders.id = order_details.order_id
-            INNER JOIN product 
-                ON order_details.product_id = product.id
-            ORDER BY orders.created_at DESC
+            SELECT
+                p.id,
+                p.name,
+                p.description,
+                p.price,
+                p.image,
+                p.category_id,
+                c.name AS category_name
+            FROM {$this->table_name} p
+            LEFT JOIN category c ON p.category_id = c.id
+            ORDER BY p.id DESC
         ";
 
         $stmt = $this->conn->prepare($query);
@@ -38,177 +55,110 @@ class ProductModel
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function getProducts()
-    {
-        $query = "SELECT 
-                    p.id,
-                    p.name,
-                    p.description,
-                    p.price,
-                    p.image,
-                    c.name AS category_name
-                  FROM " . $this->table_name . " p
-                  LEFT JOIN category c 
-                  ON p.category_id = c.id";
-
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-
-        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
-
-        return $result;
-    }
-
     public function getProductById($id)
     {
-        $query = "SELECT 
-                    p.*,
-                    c.name AS category_name
-                  FROM " . $this->table_name . " p
-                  LEFT JOIN category c 
-                  ON p.category_id = c.id
-                  WHERE p.id = :id";
+        $query = "
+            SELECT
+                p.id,
+                p.name,
+                p.description,
+                p.price,
+                p.image,
+                p.category_id,
+                c.name AS category_name
+            FROM {$this->table_name} p
+            LEFT JOIN category c ON p.category_id = c.id
+            WHERE p.id = :id
+        ";
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-
+        $stmt->bindValue(':id', (int) $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        $result = $stmt->fetch(PDO::FETCH_OBJ);
-
-        return $result;
+        return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
-    public function addProduct(
-        $name,
-        $description,
-        $price,
-        $category_id,
-        $image
-    ) {
-        $errors = [];
+    public function addProduct($name, $description, $price, $category_id, $image = null)
+    {
+        $errors = $this->validate($name, $description, $price, $category_id);
 
-        if (empty($name)) {
-            $errors['name'] = 'Tên sản phẩm không được để trống';
-        }
-
-        if (empty($description)) {
-            $errors['description'] = 'Mô tả không được để trống';
-        }
-
-        if (!is_numeric($price) || $price < 0) {
-            $errors['price'] = 'Giá sản phẩm không hợp lệ';
-        }
-
-        if (count($errors) > 0) {
+        if (!empty($errors)) {
             return $errors;
         }
 
-        $query = "INSERT INTO " . $this->table_name . "
-                    (name, description, price, category_id, image)
-                  VALUES
-                    (:name, :description, :price, :category_id, :image)";
+        $query = "
+            INSERT INTO {$this->table_name}
+                (name, description, price, category_id, image)
+            VALUES
+                (:name, :description, :price, :category_id, :image)
+        ";
 
         $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':name', trim(strip_tags($name)));
+        $stmt->bindValue(':description', trim(strip_tags($description)));
+        $stmt->bindValue(':price', $price);
+        $stmt->bindValue(':category_id', (int) $category_id, PDO::PARAM_INT);
+        $stmt->bindValue(':image', $image ?: null);
 
-        $name = htmlspecialchars(strip_tags($name));
-        $description = htmlspecialchars(strip_tags($description));
-        $price = htmlspecialchars(strip_tags($price));
-        $category_id = htmlspecialchars(strip_tags($category_id));
-        $image = htmlspecialchars(strip_tags($image));
-
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':description', $description);
-        $stmt->bindParam(':price', $price);
-        $stmt->bindParam(':category_id', $category_id);
-        $stmt->bindParam(':image', $image);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-
-        return false;
+        return $stmt->execute();
     }
 
-    public function updateProduct(
-        $id,
-        $name,
-        $description,
-        $price,
-        $category_id,
-        $image
-    ) {
+    public function updateProduct($id, $name, $description, $price, $category_id, $image = null)
+    {
+        $errors = $this->validate($name, $description, $price, $category_id);
 
-        $query = "UPDATE " . $this->table_name . "
-                  SET
-                    name = :name,
-                    description = :description,
-                    price = :price,
-                    category_id = :category_id,
-                    image = :image
-                  WHERE id = :id";
-
-        $stmt = $this->conn->prepare($query);
-
-        $name = htmlspecialchars(strip_tags($name));
-        $description = htmlspecialchars(strip_tags($description));
-        $price = htmlspecialchars(strip_tags($price));
-        $category_id = htmlspecialchars(strip_tags($category_id));
-        $image = htmlspecialchars(strip_tags($image));
-
-        $stmt->bindParam(':id', $id);
-        $stmt->bindParam(':name', $name);
-        $stmt->bindParam(':description', $description);
-        $stmt->bindParam(':price', $price);
-        $stmt->bindParam(':category_id', $category_id);
-        $stmt->bindParam(':image', $image);
-
-        if ($stmt->execute()) {
-            return true;
+        if (!empty($errors)) {
+            return $errors;
         }
 
-        return false;
+        $query = "
+            UPDATE {$this->table_name}
+            SET
+                name = :name,
+                description = :description,
+                price = :price,
+                category_id = :category_id
+        ";
+
+        if ($image !== null) {
+            $query .= ', image = :image';
+        }
+
+        $query .= ' WHERE id = :id';
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':id', (int) $id, PDO::PARAM_INT);
+        $stmt->bindValue(':name', trim(strip_tags($name)));
+        $stmt->bindValue(':description', trim(strip_tags($description)));
+        $stmt->bindValue(':price', $price);
+        $stmt->bindValue(':category_id', (int) $category_id, PDO::PARAM_INT);
+
+        if ($image !== null) {
+            $stmt->bindValue(':image', $image ?: null);
+        }
+
+        return $stmt->execute();
     }
 
     public function deleteProduct($id)
     {
         try {
-            // Kiểm tra sản phẩm đã có trong đơn hàng chưa
-            $checkQuery = "SELECT COUNT(*) FROM order_details WHERE product_id = :id";
-            $checkStmt = $this->conn->prepare($checkQuery);
-            $checkStmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $checkStmt->execute();
+            $query = "DELETE FROM {$this->table_name} WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':id', (int) $id, PDO::PARAM_INT);
 
-            $count = $checkStmt->fetchColumn();
-
-            if ($count > 0) {
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            if ($e->getCode() === '23000') {
                 return [
                     'success' => false,
-                    'message' => 'Không thể xóa sản phẩm này vì sản phẩm đã có trong hóa đơn/đơn hàng.'
-                ];
-            }
-
-            // Nếu chưa có trong đơn hàng thì cho xóa
-            $query = "DELETE FROM product WHERE id = :id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-
-            if ($stmt->execute()) {
-                return [
-                    'success' => true,
-                    'message' => 'Xóa sản phẩm thành công.'
+                    'message' => 'Không thể xóa sản phẩm đã xuất hiện trong hóa đơn.'
                 ];
             }
 
             return [
                 'success' => false,
-                'message' => 'Không thể xóa sản phẩm.'
-            ];
-
-        } catch (PDOException $e) {
-            return [
-                'success' => false,
-                'message' => 'Lỗi khi xóa sản phẩm: ' . $e->getMessage()
+                'message' => 'Có lỗi xảy ra khi xóa sản phẩm.'
             ];
         }
     }

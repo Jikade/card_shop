@@ -2,55 +2,100 @@
 
 session_start();
 
-require_once 'app/models/ProductModel.php';
 require_once 'app/helpers/SessionHelper.php';
-
-// Product/add
 
 $url = $_GET['url'] ?? '';
 $url = rtrim($url, '/');
 $url = filter_var($url, FILTER_SANITIZE_URL);
-$url = explode('/', $url);
+$urlParts = $url === '' ? [] : explode('/', $url);
 
-// Kiểm tra phần đầu tiên của URL để xác định controller
-
-$controllerName = isset($url[0]) && $url[0] != ''
-    ? ucfirst($url[0]) . 'Controller'
+$controllerName = isset($urlParts[0]) && $urlParts[0] !== ''
+    ? ucfirst($urlParts[0]) . 'Controller'
     : 'DefaultController';
 
-// Kiểm tra phần thứ hai của URL để xác định action
-
-$action = isset($url[1]) && $url[1] != ''
-    ? $url[1]
+$action = isset($urlParts[1]) && $urlParts[1] !== ''
+    ? $urlParts[1]
     : 'index';
 
-// die("controller=$controllerName - action=$action");
+// REST API: /api/product, /api/product/{id}, /api/category
+if ($controllerName === 'ApiController' && isset($urlParts[1])) {
+    header('Content-Type: application/json; charset=UTF-8');
 
-// Kiểm tra xem controller có tồn tại không
+    $apiControllerName = ucfirst($urlParts[1]) . 'ApiController';
+    $apiControllerPath = 'app/controllers/' . $apiControllerName . '.php';
 
-if (!file_exists('app/controllers/' . $controllerName . '.php')) {
+    if (!file_exists($apiControllerPath)) {
+        http_response_code(404);
+        echo json_encode(['message' => 'Controller not found'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
-    die('Controller not found');
+    require_once $apiControllerPath;
 
+    $controller = new $apiControllerName();
+    $method = $_SERVER['REQUEST_METHOD'];
+    $id = $urlParts[2] ?? null;
+
+    switch ($method) {
+        case 'GET':
+            $action = $id !== null ? 'show' : 'index';
+            break;
+
+        case 'POST':
+            $action = 'store';
+            break;
+
+        case 'PUT':
+            if ($id === null) {
+                http_response_code(400);
+                echo json_encode(['message' => 'ID is required'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            $action = 'update';
+            break;
+
+        case 'DELETE':
+            if ($id === null) {
+                http_response_code(400);
+                echo json_encode(['message' => 'ID is required'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            $action = 'destroy';
+            break;
+
+        default:
+            http_response_code(405);
+            echo json_encode(['message' => 'Method Not Allowed'], JSON_UNESCAPED_UNICODE);
+            exit;
+    }
+
+    if (!method_exists($controller, $action)) {
+        http_response_code(404);
+        echo json_encode(['message' => 'Action not found'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if ($id !== null) {
+        call_user_func_array([$controller, $action], [$id]);
+    } else {
+        call_user_func_array([$controller, $action], []);
+    }
+
+    exit;
 }
 
-require_once 'app/controllers/' . $controllerName . '.php';
+// MVC web thông thường
+$controllerPath = 'app/controllers/' . $controllerName . '.php';
 
+if (!file_exists($controllerPath)) {
+    die('Controller not found');
+}
+
+require_once $controllerPath;
 $controller = new $controllerName();
 
-// Kiểm tra action có tồn tại không
-
 if (!method_exists($controller, $action)) {
-
     die('Action not found');
-
 }
 
-// Gọi action với các tham số còn lại (nếu có)
-
-call_user_func_array(
-    [$controller, $action],
-    array_slice($url, 2)
-);
-
-?>
+call_user_func_array([$controller, $action], array_slice($urlParts, 2));
