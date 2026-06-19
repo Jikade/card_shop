@@ -34,6 +34,21 @@ if ($controllerName === 'ApiController' && isset($urlParts[1])) {
 
     $controller = new $apiControllerName();
     $method = $_SERVER['REQUEST_METHOD'];
+
+    // HTML form + FormData không upload file tốt với PUT trực tiếp trong PHP.
+    // Vì vậy cho phép gửi POST kèm _method=PUT hoặc header X-HTTP-Method-Override.
+    $methodOverride = $_POST['_method']
+        ?? $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']
+        ?? null;
+
+    if ($method === 'POST' && $methodOverride) {
+        $methodOverride = strtoupper($methodOverride);
+
+        if (in_array($methodOverride, ['PUT', 'DELETE'], true)) {
+            $method = $methodOverride;
+        }
+    }
+
     $id = $urlParts[2] ?? null;
 
     switch ($method) {

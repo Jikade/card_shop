@@ -3,7 +3,7 @@
 class AccountModel
 {
     private $conn;
-    private $table_name = "account";
+    private $table_name = 'account';
 
     public function __construct($db)
     {
@@ -12,14 +12,13 @@ class AccountModel
 
     public function getAccountByUsername($username)
     {
-        $query = "SELECT * 
-                  FROM " . $this->table_name . " 
+        $query = "SELECT id, username, fullname, password, role
+                  FROM {$this->table_name}
                   WHERE username = :username
-                  LIMIT 0,1";
+                  LIMIT 1";
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":username", $username);
-
+        $stmt->bindValue(':username', $username);
         $stmt->execute();
 
         return $stmt->fetch(PDO::FETCH_OBJ);
@@ -31,26 +30,23 @@ class AccountModel
             return false;
         }
 
-        $query = "INSERT INTO " . $this->table_name . "
-                  SET username = :username,
-                      fullname = :fullname,
-                      password = :password,
-                      role = :role";
+        $query = "INSERT INTO {$this->table_name}
+                    (username, fullname, password, role)
+                  VALUES
+                    (:username, :fullname, :password, :role)";
 
         $stmt = $this->conn->prepare($query);
 
         $username = htmlspecialchars(strip_tags($username));
         $fullName = htmlspecialchars(strip_tags($fullName));
-        $password = password_hash($password, PASSWORD_BCRYPT);
-        $role = htmlspecialchars(strip_tags($role));
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+        $role = in_array($role, ['admin', 'user'], true) ? $role : 'user';
 
-        $stmt->bindParam(":username", $username);
-        $stmt->bindParam(":fullname", $fullName);
-        $stmt->bindParam(":password", $password);
-        $stmt->bindParam(":role", $role);
+        $stmt->bindValue(':username', $username);
+        $stmt->bindValue(':fullname', $fullName);
+        $stmt->bindValue(':password', $hashedPassword);
+        $stmt->bindValue(':role', $role);
 
         return $stmt->execute();
     }
 }
-
-?>

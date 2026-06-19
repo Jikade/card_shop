@@ -1,7 +1,8 @@
 <?php
 
-require_once('app/config/database.php');
-require_once('app/models/CategoryModel.php');
+require_once 'app/config/database.php';
+require_once 'app/models/CategoryModel.php';
+require_once 'app/helpers/AuthHelper.php';
 
 class CategoryController
 {
@@ -28,11 +29,14 @@ class CategoryController
 
     public function add()
     {
+        AuthHelper::requireAdmin(false);
         include 'app/views/category/add.php';
     }
 
     public function save()
     {
+        AuthHelper::requireAdmin(false);
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = $_POST['name'] ?? '';
             $description = $_POST['description'] ?? '';
@@ -57,6 +61,8 @@ class CategoryController
 
     public function edit($id)
     {
+        AuthHelper::requireAdmin(false);
+
         $category = $this->categoryModel->getCategoryById($id);
 
         if ($category) {
@@ -68,6 +74,8 @@ class CategoryController
 
     public function update()
     {
+        AuthHelper::requireAdmin(false);
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = $_POST['id'] ?? null;
             $name = $_POST['name'] ?? '';
@@ -103,6 +111,8 @@ class CategoryController
 
     public function delete($id)
     {
+        AuthHelper::requireAdmin(false);
+
         $result = $this->categoryModel->deleteCategory($id);
 
         if ($result === true) {

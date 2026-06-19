@@ -3,7 +3,7 @@
 require_once 'app/config/database.php';
 require_once 'app/models/ProductModel.php';
 require_once 'app/models/CategoryModel.php';
-require_once 'app/helpers/SessionHelper.php';
+require_once 'app/helpers/AuthHelper.php';
 
 class ProductController
 {
@@ -19,7 +19,7 @@ class ProductController
     // Kiểm tra quyền Admin
     private function isAdmin()
     {
-        return SessionHelper::isAdmin();
+        return AuthHelper::isAdmin();
     }
 
     // Hiển thị danh sách sản phẩm
@@ -45,10 +45,7 @@ class ProductController
     // Thêm sản phẩm, chỉ Admin
     public function add()
     {
-        if (!$this->isAdmin()) {
-            echo "Bạn không có quyền truy cập chức năng này!";
-            exit;
-        }
+        AuthHelper::requireAdmin(false);
 
         $categories = (new CategoryModel($this->db))->getCategories();
 
@@ -58,10 +55,7 @@ class ProductController
     // Lưu sản phẩm mới, chỉ Admin
     public function save()
     {
-        if (!$this->isAdmin()) {
-            echo "Bạn không có quyền truy cập chức năng này!";
-            exit;
-        }
+        AuthHelper::requireAdmin(false);
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -104,10 +98,7 @@ class ProductController
     // Sửa sản phẩm, chỉ Admin
     public function edit($id)
     {
-        if (!$this->isAdmin()) {
-            echo "Bạn không có quyền truy cập chức năng này!";
-            exit;
-        }
+        AuthHelper::requireAdmin(false);
 
         $product = $this->productModel->getProductById($id);
         $categories = (new CategoryModel($this->db))->getCategories();
@@ -122,10 +113,7 @@ class ProductController
     // Cập nhật sản phẩm, chỉ Admin
     public function update()
     {
-        if (!$this->isAdmin()) {
-            echo "Bạn không có quyền truy cập chức năng này!";
-            exit;
-        }
+        AuthHelper::requireAdmin(false);
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -163,10 +151,7 @@ class ProductController
     // Xóa sản phẩm, chỉ Admin
     public function delete($id)
     {
-        if (!$this->isAdmin()) {
-            echo "Bạn không có quyền truy cập chức năng này!";
-            exit;
-        }
+        AuthHelper::requireAdmin(false);
 
         $result = $this->productModel->deleteProduct($id);
 
@@ -191,10 +176,7 @@ class ProductController
     // Thêm sản phẩm vào giỏ hàng
     public function addToCart($id)
     {
-        if (!SessionHelper::isLoggedIn()) {
-            header('Location: /webbanhang/account/login');
-            exit;
-        }
+        AuthHelper::requireLogin(false);
 
         $product = $this->productModel->getProductById($id);
 
@@ -226,10 +208,7 @@ class ProductController
     // Hiển thị giỏ hàng
     public function cart()
     {
-        if (!SessionHelper::isLoggedIn()) {
-            header('Location: /webbanhang/account/login');
-            exit;
-        }
+        AuthHelper::requireLogin(false);
 
         $cart = $_SESSION['cart'] ?? [];
 
@@ -239,10 +218,7 @@ class ProductController
     // Tăng số lượng sản phẩm trong giỏ
     public function increaseQuantity($id)
     {
-        if (!SessionHelper::isLoggedIn()) {
-            header('Location: /webbanhang/account/login');
-            exit;
-        }
+        AuthHelper::requireLogin(false);
 
         if (isset($_SESSION['cart'][$id])) {
             $_SESSION['cart'][$id]['quantity']++;
@@ -255,10 +231,7 @@ class ProductController
     // Giảm số lượng sản phẩm trong giỏ
     public function decreaseQuantity($id)
     {
-        if (!SessionHelper::isLoggedIn()) {
-            header('Location: /webbanhang/account/login');
-            exit;
-        }
+        AuthHelper::requireLogin(false);
 
         if (isset($_SESSION['cart'][$id])) {
             $_SESSION['cart'][$id]['quantity']--;
@@ -275,10 +248,7 @@ class ProductController
     // Xóa sản phẩm khỏi giỏ hàng
     public function removeFromCart($id)
     {
-        if (!SessionHelper::isLoggedIn()) {
-            header('Location: /webbanhang/account/login');
-            exit;
-        }
+        AuthHelper::requireLogin(false);
 
         if (isset($_SESSION['cart'][$id])) {
             unset($_SESSION['cart'][$id]);
@@ -291,10 +261,7 @@ class ProductController
     // Hiển thị trang thanh toán
     public function checkout()
     {
-        if (!SessionHelper::isLoggedIn()) {
-            header('Location: /webbanhang/account/login');
-            exit;
-        }
+        AuthHelper::requireLogin(false);
 
         $cart = $_SESSION['cart'] ?? [];
 
@@ -309,10 +276,7 @@ class ProductController
     // Xử lý thanh toán
     public function processCheckout()
     {
-        if (!SessionHelper::isLoggedIn()) {
-            header('Location: /webbanhang/account/login');
-            exit;
-        }
+        AuthHelper::requireLogin(false);
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: /webbanhang/Product/cart');
@@ -387,10 +351,7 @@ class ProductController
     // Hiển thị danh sách hóa đơn
     public function invoices()
     {
-        if (!SessionHelper::isLoggedIn()) {
-            header('Location: /webbanhang/account/login');
-            exit;
-        }
+        AuthHelper::requireLogin(false);
 
         $query = "
             SELECT 

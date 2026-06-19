@@ -1,6 +1,6 @@
 <?php
-require_once 'app/helpers/SessionHelper.php';
-$isAdmin = SessionHelper::isAdmin();
+require_once 'app/helpers/AuthHelper.php';
+$isAdmin = AuthHelper::isAdmin();
 $productId = isset($product->id) ? (int) $product->id : 0;
 include 'app/views/shares/header.php';
 ?>

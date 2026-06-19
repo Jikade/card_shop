@@ -1,11 +1,14 @@
 <?php
-require_once 'app/helpers/SessionHelper.php';
+require_once 'app/helpers/AuthHelper.php';
 
-SessionHelper::start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start(); // Chỉ dùng cho giỏ hàng, không dùng để xác thực.
+}
 
-$isLoggedIn = SessionHelper::isLoggedIn();
-$isAdmin = SessionHelper::isAdmin();
-$role = SessionHelper::getRole();
+$currentUser = AuthHelper::getUser();
+$isLoggedIn = $currentUser !== null;
+$isAdmin = $isLoggedIn && (($currentUser['role'] ?? '') === 'admin');
+$role = $currentUser['role'] ?? 'guest';
 
 $cartCount = 0;
 
@@ -17,9 +20,7 @@ if (!empty($_SESSION['cart'])) {
 ?>
 
 <!DOCTYPE html>
-
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,60 +59,41 @@ if (!empty($_SESSION['cart'])) {
             <ul class="navbar-nav ml-auto align-items-lg-center">
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/webbanhang/Product">
-                        Sản phẩm
-                    </a>
+                    <a class="nav-link" href="/webbanhang/Product">Sản phẩm</a>
                 </li>
 
                 <?php if ($isAdmin): ?>
-
                     <li class="nav-item">
-                        <a class="nav-link" href="/webbanhang/Product/add">
-                            Thêm thẻ
-                        </a>
+                        <a class="nav-link" href="/webbanhang/Product/add">Thêm thẻ</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="/webbanhang/Category/list">
-                            Danh mục
-                        </a>
+                        <a class="nav-link" href="/webbanhang/Category/list">Danh mục</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link nav-invoice-link" href="/webbanhang/Product/invoices">
-                            🧾 Hóa đơn
-                        </a>
+                        <a class="nav-link nav-invoice-link" href="/webbanhang/Product/invoices">🧾 Hóa đơn</a>
                     </li>
-
                 <?php endif; ?>
 
                 <?php if ($isLoggedIn && !$isAdmin): ?>
-
                     <li class="nav-item">
                         <a class="nav-link nav-cart-link" href="/webbanhang/Product/cart">
                             🛒 Giỏ hàng
-                            <span class="cart-count">
-                                <?php echo $cartCount; ?>
-                            </span>
+                            <span class="cart-count"><?php echo $cartCount; ?></span>
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link nav-invoice-link" href="/webbanhang/Product/invoices">
-                            🧾 Hóa đơn
-                        </a>
+                        <a class="nav-link nav-invoice-link" href="/webbanhang/Product/invoices">🧾 Hóa đơn</a>
                     </li>
-
                 <?php endif; ?>
 
                 <?php if ($isLoggedIn): ?>
-
                     <li class="nav-item">
                         <span class="nav-link">
                             👋 Xin chào,
-                            <strong>
-                                <?php echo htmlspecialchars($_SESSION['username'], ENT_QUOTES, 'UTF-8'); ?>
-                            </strong>
+                            <strong><?php echo htmlspecialchars($currentUser['username'] ?? '', ENT_QUOTES, 'UTF-8'); ?></strong>
 
                             <?php if ($isAdmin): ?>
                                 <span class="badge badge-warning ml-1">Admin</span>
@@ -122,25 +104,16 @@ if (!empty($_SESSION['cart'])) {
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-warning" href="/webbanhang/account/logout">
-                            🚪 Đăng xuất
-                        </a>
+                        <a class="nav-link text-warning js-logout" href="/webbanhang/account/logout">🚪 Đăng xuất</a>
                     </li>
-
                 <?php else: ?>
-
                     <li class="nav-item">
-                        <a class="nav-link" href="/webbanhang/account/login">
-                            🔑 Đăng nhập
-                        </a>
+                        <a class="nav-link" href="/webbanhang/account/login">🔑 Đăng nhập</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="/webbanhang/account/register">
-                            📝 Đăng ký
-                        </a>
+                        <a class="nav-link" href="/webbanhang/account/register">📝 Đăng ký</a>
                     </li>
-
                 <?php endif; ?>
 
             </ul>
@@ -150,13 +123,9 @@ if (!empty($_SESSION['cart'])) {
 
 <header class="duel-hero">
     <div class="container">
-        <span class="duel-kicker">
-            Trading Card Store
-        </span>
+        <span class="duel-kicker">Trading Card Store</span>
 
-        <h1 class="duel-title">
-            Thế giới thẻ bài
-        </h1>
+        <h1 class="duel-title">Thế giới thẻ bài</h1>
 
         <p class="duel-subtitle">
             Khám phá bộ sưu tập thẻ bài Yu-Gi-Oh!, Pokémon, Magic, One Piece và các phụ kiện dành cho người chơi.
